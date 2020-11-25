@@ -15,8 +15,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Divider from '@material-ui/core/Divider';
-import AcUnitSharpIcon from '@material-ui/icons/AcUnitSharp';
-import ImportExportSharpIcon from '@material-ui/icons/ImportExportSharp';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -26,9 +24,7 @@ import Button from '@material-ui/core/Button';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-
 import Snackbar from '@material-ui/core/Snackbar';
-
 import Timeline from '@material-ui/lab/Timeline';
 import TimelineItem from '@material-ui/lab/TimelineItem';
 import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
@@ -39,13 +35,11 @@ import TimelineDot from '@material-ui/lab/TimelineDot';
 import SaveSharpIcon from '@material-ui/icons/SaveSharp';
 import IconButton from '@material-ui/core/IconButton';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import Avatar from '@material-ui/core/Avatar';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import cloud from './icons/cloud.png';
-import weatherIcon from './icons/weather.png';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -126,6 +120,7 @@ const App = () => {
   );
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('false');
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -137,6 +132,7 @@ const App = () => {
 
   const handleSnackBarClick = () => {
     setOpen(true);
+    setMessage('Already added!');
     setTimeout(() => {
       setOpen(false);
     }, 3000);
@@ -189,6 +185,11 @@ const App = () => {
     localStorage.setItem('locations', JSON.stringify(a));
 
     saved === null ? setSaved([x]) : saved.push(x);
+    setOpen(true);
+    setMessage(`${x} was added to favorites`);
+    setTimeout(() => {
+      setOpen(false);
+    }, 3000);
     console.log(saved);
   };
 
@@ -228,6 +229,7 @@ const App = () => {
               {saved ? (
                 <div className={classes.centerSearch}>
                   <Button
+                    key={saved}
                     startIcon={<SaveSharpIcon />}
                     aria-controls="simple-menu"
                     aria-haspopup="true"
@@ -373,12 +375,16 @@ const App = () => {
                                 .slice(0, 4)
                                 .map((hour, index) => (
                                   <Step key={index}>
-                                    <StepLabel>
+                                    <StepLabel
+                                      icon={
+                                        <img
+                                          className={classes.img}
+                                          src={`http://openweathermap.org/img/wn/${hour.weather[0].icon}@2x.png`}
+                                          alt="weather icon"
+                                        />
+                                      }
+                                    >
                                       {hour.temp}°
-                                      <img
-                                        className={classes.img}
-                                        src={`http://openweathermap.org/img/wn/${hour.weather[0].icon}@2x.png`}
-                                      />
                                     </StepLabel>
                                   </Step>
                                 ))}
@@ -411,6 +417,7 @@ const App = () => {
                                         <img
                                           className={classes.img}
                                           src={`http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
+                                          alt="wtr icon"
                                         />
                                       </TimelineDot>
                                       <TimelineConnector />
@@ -444,15 +451,7 @@ const App = () => {
                 : ''}
             </div>
           </Grid>
-          {open ? (
-            <Snackbar
-              open={open}
-              message="Location already saved!"
-              autoHideDuration={6000}
-            />
-          ) : (
-            ''
-          )}
+          {open ? <Snackbar open={open} message={message} /> : ''}
         </Grid>
       </Container>
     </div>
